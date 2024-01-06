@@ -202,8 +202,23 @@ function createScoreSelect(selectedScore, index) {
     return select;
 }
 
+function onSignIn(googleUser) {
+    // 獲取用戶的基本資訊
+    var profile = googleUser.getBasicProfile();
+    console.log('ID: ' + profile.getId()); 
+    console.log('Full Name: ' + profile.getName());
+    console.log('Given Name: ' + profile.getGivenName());
+    console.log('Family Name: ' + profile.getFamilyName());
+    console.log('Image URL: ' + profile.getImageUrl());
+    console.log('Email: ' + profile.getEmail());
+
+    // 可以將 token 發送到服務器
+    var id_token = googleUser.getAuthResponse().id_token;
+    console.log("ID Token: " + id_token);
+}
+
 document.getElementById('save-form').addEventListener('click', function () {
-    const username = document.getElementById('username').value || 'unknown_user';
+    const username = user.sub;
     const docId = document.querySelector('.doc-header').innerText.split(': ')[1] || 'unknown';
     const allClauses = document.querySelectorAll('.clause');
     const data = {
@@ -234,7 +249,7 @@ document.getElementById('save-form').addEventListener('click', function () {
         data.clauses.push(clauseData);
     });
 
-    fetch('https://web.lab214b.uk:10000/submit', {
+    fetch(window.url + '/submit', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
