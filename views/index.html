@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document Clauses Viewer</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+
+</head>
+
+<body>
+    <div class="container">
+        
+        <h1>Make Document Clauses Dataset</h1>
+        <div class="user-input">
+            <label for="username">使用者</label>
+            <input type="text" id="username" name="username" placeholder="使用者姓名">
+        </div>
+        <div class="instructions">
+            <h2>操作說明</h2>
+            <p>1. 填上使用者名稱</p>
+            <p>2. 資料集中包含數篇文本，每篇文本包含數個子句</p>
+            <p>3. 先判斷每個子句是否為情感子句，是的話選取認為的情緒分類。</p>
+            <p>4. 若為情感子句，再判斷其有無對應的原因子句，點擊"+"添加原因句，並給出分數1~3分是否明顯為對應關係，3分為明顯為情感-原因對應關係，1分為不明顯為對應關係。情感子句可對應一或多個原因子句，若無對應則不須點選"+"。每篇文本中至少包含一組情感與原因組合。</p>
+            <p>5. 選完每一篇文本的情感與原因組合，皆須按一次"Save Form"按鍵儲存。</p>
+            <p>6. 以下為6種情緒可對應的字詞做為參考：</p>
+            <ul>
+                <li>happiness: 激動, 自豪, 欣喜, 感謝, 開心, 感動, 笑, 讚揚, 尊敬, 高興, 幸運, 笑聲, 敬佩, 幸福, 心花怒放, 喜歡</li>
+                <li>sadness: 心疼, 無奈, 傷心, 哭, 憂慮, 泣, 絕望, 痛不欲生, 後悔, 愧疚, 苦惱, 哽咽, 失落, 慚愧, 沉重, 壓抑, 心酸, 寂寞, 痛苦, 煎熬, 自責</li>
+                <li>disgust 生不如死 沒有人性 懷疑 怨恨 不爽 鬱悶 疑惑 起疑 發愁 顧慮 不喜歡 煩 反感 厭惡 苦惱 不舒服</li>
+                <li>surprise 驚詫 詫異 驚喜 吃驚 意外 震驚 驚訝 震撼</li>
+                <li>fear 擔心 著急 心有餘悸 害怕 驚慌 焦慮 心急 難堪 嚇到 緊張 恐懼</li>
+                <li>anger 氣 生氣 悲憤 憤恨 氣憤 暴躁 怒 衝動 火大</li>
+            </ul>
+            <p>7. 以下為一篇文本範例：</p>
+            <ul>
+                <li>1. 生不如死 是 老 吴 患癌 后 常有 的 想法  disgust，原因1：由于大面积骨转移 2分，原因2：老吴每天都在 剧痛里挣扎 3分</li>
+                <li>2. 由于 大面积 骨转移</li>
+                <li>3. 老 吴 每天 都 在 剧痛 里 挣扎</li>
+                <li>4. 从 2012 年 10 月 到 现在</li>
+                <li>5. 老 吴 已经 和 晚期 肺癌 搏斗 了 30 个 月</li>
+                <li>6. 这个 时间 长度</li>
+                <li>7. 比 医生 最初 给 他 的 死亡 判决 已经 超出 了 近 10 倍</li>
+                <li>8. 深圳 宁养院 的 医生 王劲 也 感到 惊诧  surprise，原因1：比医生最初给他的死亡判决已经超出了近 10倍 3分</li>
+            </ul>
+        </div>
+        <div id="content"></div>
+        <div class="pagination">
+            <span id="prev" class="page-button">Previous</span>
+            <input type="number" id="page-number-input" class="page-number-input" min="1" />
+            <span id="total-pages" class="total-pages"></span>
+            <span id="next" class="page-button">Next</span>
+        </div>
+        <button id="save-form" class="save-button">Save Form</button>
+    </div>
+    <script src="/js/script.js"></script>
+</body>
+
+</html>

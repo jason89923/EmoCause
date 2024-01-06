@@ -1,0 +1,214 @@
+body {
+  font-family: "Noto Sans", Arial, sans-serif;
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+.user-input {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 20px;
+}
+
+.user-input label {
+  margin-right: 10px;
+}
+
+.user-input input {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 5px 10px;
+}
+.container {
+  width: 90%;
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+  background: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.doc {
+  margin-bottom: 40px;
+  padding: 15px;
+  background: #fafafa;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.doc-header {
+  font-size: 24px;
+  font-weight: 600;
+  color: #2a7f62;
+  margin-bottom: 20px;
+}
+
+.clause {
+  display: grid;
+  grid-template-columns: 1fr 0.7fr 3fr auto auto; /* 1fr为文本，3fr为选择器，auto为加号按钮 */
+  align-items: center;
+  gap: 10px; /* 元素之间的间距 */
+}
+
+.clause-text {
+  /* grid布局不需要额外的flex设置 */
+}
+
+.causes-container {
+  /* grid布局不需要额外的flex设置 */
+}
+
+.add-cause {
+  /* grid布局不需要额外的flex设置 */
+}
+
+.delete-cause {
+  /* grid布局不需要额外的flex设置 */
+}
+
+.emotion-select,
+.cause-select,
+.score-select {
+  margin-left: 10px;
+  margin-right: 10px;
+
+  width: 60%; /* 确保选择器填满分配的空间 */
+  border-radius: 5px;
+  background: white;
+  transition: border-color 0.3s;
+}
+
+.causes-container {
+  display: flex;
+  justify-content: flex-end;
+  flex-grow: 1;
+}
+
+.selects-container {
+  display: grid;
+  align-items: center;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.select-container {
+  display: flex;
+  flex-direction: column;
+  margin: 10px;
+}
+
+.label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.emotion-select{
+  width: 100%; /* 修改為填滿容器 */
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 8px; /* 適當的填充以增加點擊區域 */
+  background: rgb(255, 237, 237);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.cause-select{
+  width: 100%; /* 修改為填滿容器 */
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 8px; /* 適當的填充以增加點擊區域 */
+  background: rgb(255, 244, 237);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.score-select {
+  width: 100%; /* 修改為填滿容器 */
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 8px; /* 適當的填充以增加點擊區域 */
+  background: rgb(255, 238, 218);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+/* 新增盒子陰影過渡效果 */
+.emotion-select:focus,
+.cause-select:focus,
+.score-select:focus {
+  border-color: #2a7f62;
+  box-shadow: 0 0 0 2px rgba(42, 127, 98, 0.2);
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.page-button {
+  padding: 10px 15px;
+  background-color: #2a7f62;
+  color: white;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.page-button:hover {
+  background-color: #238756;
+}
+
+.page-number-input {
+  width: 50px;
+  text-align: center;
+  margin: 0 10px;
+}
+
+.save-button {
+  padding: 12px 25px;
+  background-color: #2a7f62;
+  color: rgb(255, 255, 255);
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: box-shadow 0.3s;
+}
+
+.save-button:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.add-cause {
+  color: rgb(162, 162, 162);
+  border-color: #d1d1d1;
+  font-size: 16px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+  margin: 3px;
+}
+
+.add-cause:hover {
+  background-color: #808080;
+}
+
+/* 調整加號圖標的大小和顏色 */
+.plus-icon {
+  font-size: 16px; /* 適合的大小 */
+}
+
+
+
+.delete-cause {
+  color: rgb(162, 162, 162);
+  border-color: #d1d1d1;
+  font-size: 16px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+  margin: 3px;
+}
+
+.delete-cause:hover {
+  background-color: #808080;
+}
+
+
