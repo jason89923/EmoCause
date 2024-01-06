@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Modal 彈窗示例</title>
+    <style>
+        /* 模態彈窗（Modal）的基本樣式 */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1; 
+            left: 40vw;
+            top:  5vw;
+            width: auto; 
+            height: auto; 
+            overflow: auto; 
+
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto; 
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; 
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 按鈕 -->
+    <button id="myBtn">google 登入</button>
+
+    <!-- 模態彈窗 -->
+    <div id="myModal" class="modal">
+
+      <!-- 模態內容 -->
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <iframe src="/auth/google" style="width:20vw;height:auto;"></iframe>
+      </div>
+
+    </div>
+
+    <script>
+    // 獲取元素
+    var modal = document.getElementById("myModal");
+    var btn = document.getElementById("myBtn");
+    var span = document.getElementsByClassName("close")[0];
+
+    // 當用戶點擊按鈕時打開彈窗
+    btn.onclick = function() {
+      modal.style.display = "block";
+    }
+
+    // 當用戶點擊 x 按鈕時，關閉彈窗
+    span.onclick = function() {
+      modal.style.display = "none";
+    }
+
+    // 當用戶點擊彈窗之外的區域時，關閉彈窗
+    window.onclick = function(event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    }
+    </script>
+
+    <script src="/js/script.js"></script>
+    <script src="../index.js"></script>
+    </body>
+</html>
