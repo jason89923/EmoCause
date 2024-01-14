@@ -1,0 +1,14 @@
+{
+  "doc_id": 1266,
+  "uuid": "gugu",
+  "clauses": [
+    {
+      "clause_id": 1,
+      "emotion": "happiness",
+      "causes": [
+        { "id": 1, "score": 2 },
+        { "id": 2, "score": 3 }
+      ]
+    }
+  ]
+}

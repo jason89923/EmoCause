@@ -4,20 +4,19 @@
         <title>登入</title>
         <script src="https://apis.google.com/js/platform.js" async defer></script>
         <link rel="stylesheet" href="/css/login.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
         <meta name="google-signin-client_id" content="YOUR_CLIENT_ID.apps.googleusercontent.com">
     </head>
     <body>
         <div class="login">
-        <div class="left">
-            <h3>Log in to your account</h3>
+            <div class="left">
+                <h1>Clauses Label Editor</h3>
 
-            <a href="<%= appUrl %>/auth/google" class="google-login">
-              <i class="fab fa-google"></i>
-              <span>Log In with Google</span>
-            </a>
-
+                <a href="<%= appUrl %>/auth/google" class="google-login">
+                    <i class="fab fa-google"></i>
+                    <span> Log In with Google</span>
+                </a>
+            </div>
         </div>
-       
-      </div>
     </body>
 </html>

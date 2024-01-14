@@ -1,107 +1,166 @@
 
+const emotions = ['null', 'happiness', 'sadness', 'disgust', 'surprise', 'fear', 'anger'];
 
-const emotions = ['happiness', 'sadness', 'disgust', 'surprise', 'fear', 'anger'];
-let selections = JSON.parse(localStorage.getItem('clauseSelections')) || {};
-let currentPage = 0;
-let totalPages = 0;
+function next() {
+    // 創建一個包含 UUID 的物件
+    const payload = {
+        uuid: window.user.sub,
+    };
 
-function loadAndDisplayJSON() {
-    fetch('/resource/fold7_test.json')
-        .then(response => response.json())
-        .then(data => {
-            totalPages = data.length;
-            document.getElementById('total-pages').innerText = ' of ' + totalPages;
-            displayPage(data, currentPage);
-            setupPagination(data);
+    // 使用 fetch 發送 POST 請求
+    fetch('/API/nextPage', {
+        method: 'POST', // 指定請求方法為 POST
+        headers: {
+            'Content-Type': 'application/json' // 指定請求內容類型為 JSON
+        },
+        body: JSON.stringify(payload) // 將物件轉換為 JSON 字串作為請求主體
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json(); // 將響應轉換為 JSON
         })
-        .catch(error => console.error('Error loading JSON:', error));
-}
-function changePage(data, increment) {
-    let newPage = currentPage + increment;
-    if (newPage >= 0 && newPage < data.length) {
-        currentPage = newPage;
-        displayPage(data, currentPage);
-    }
-}
-function setupPagination(data) {
-    document.getElementById('prev').addEventListener('click', () => changePage(data, -1));
-    document.getElementById('next').addEventListener('click', () => changePage(data, 1));
-    document.getElementById('page-number-input').addEventListener('change', (event) => {
-        const newPage = parseInt(event.target.value, 10) - 1;
-        if (newPage >= 0 && newPage < totalPages) {
-            currentPage = newPage;
-            displayPage(data, currentPage);
-        }
-    });
+        .then(data => {
+            // 處理 JSON 響應
+            console.log(data);
+            displayPage(data.docs, data.current_page, data.total_page);
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+            // 處理錯誤情況，例如顯示錯誤信息
+        });
 }
 
-function displayPage(data, pageIndex) {
+function prev() {
+    // 創建一個包含 UUID 的物件
+    const payload = {
+        uuid: window.user
+    };
+
+    // 使用 fetch 發送 POST 請求
+    fetch('/API/topic_info', {
+        method: 'POST', // 指定請求方法為 POST
+        headers: {
+            'Content-Type': 'application/json' // 指定請求內容類型為 JSON
+        },
+        body: JSON.stringify(payload) // 將物件轉換為 JSON 字串作為請求主體
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json(); // 將響應轉換為 JSON
+        })
+        .then(data => {
+            // 處理 JSON 響應
+            console.log(data);
+            displayPage(data, currentPage);
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+            // 處理錯誤情況，例如顯示錯誤信息
+        });
+}
+
+
+// 在頁面加載時設置事件監聽器
+document.addEventListener('DOMContentLoaded', function () {
+    // 當點擊上一頁按鈕時觸發 prev 函數
+    document.getElementById('prev').addEventListener('click', function () {
+        prev();
+    });
+
+});
+
+
+// 這個函數根據提供的數據和頁碼顯示頁面
+function displayPage(data, current_page, total_page) {
     let contentDiv = document.getElementById('content');
     contentDiv.innerHTML = '';
-    if (pageIndex >= 0 && pageIndex < data.length) {
-        let doc = data[pageIndex];
-        let docDiv = document.createElement('div');
-        docDiv.className = 'doc';
-        let header = document.createElement('div');
-        header.className = 'doc-header';
-        header.innerText = 'Document ID: ' + doc.doc_id;
-        docDiv.appendChild(header);
 
-        doc.clauses.forEach((clause, index) => {
-            let clauseDiv = document.createElement('div');
-            clauseDiv.className = 'clause';
-            let clauseText = document.createElement('div');
-            clauseText.className = 'clause-text';
-            clauseText.innerText = (index + 1) + ". " + clause.clause;
-            clauseDiv.appendChild(clauseText);
+    // 從數據中獲取文檔資訊
+    let doc = data;
+    let docDiv = document.createElement('div');
+    docDiv.className = 'doc';
+    let header = document.createElement('div');
+    header.className = 'doc-header';
+    header.innerText = 'Document ID: ' + doc.doc_id;
+    docDiv.appendChild(header);
 
-            let emotionSelect = createEmotionSelect();
-            clauseDiv.appendChild(emotionSelect);
+    // 為每個子句創建一個容器
+    doc.clauses.forEach((clause, index) => {
+        let clauseDiv = document.createElement('div');
+        clauseDiv.className = 'clause';
+        let clauseText = document.createElement('div');
+        clauseText.className = 'clause-text';
+        clauseText.innerText = (index + 1) + ". " + clause.clause;
+        clauseDiv.appendChild(clauseText);
 
-            let causesContainer = document.createElement('div');
-            causesContainer.className = 'causes-container';
-            clauseDiv.appendChild(causesContainer);
+        // 創建情緒選擇器並設置預設值
 
+        let emotion = "null"
+        let emotionSelect = createEmotionSelect(emotion);
+        clauseDiv.appendChild(emotionSelect);
 
-            let addButton = document.createElement('button');
-            addButton.className = 'add-cause';
-            let icon = document.createElement('i');
-            icon.className = 'fas fa-plus';
-            addButton.appendChild(icon);
-            addButton.addEventListener('click', () => addCauseAndScore(causesContainer));
-            clauseDiv.appendChild(addButton);
+        // 創建一個容器來放置原因和分數選擇器
+        let causesContainer = document.createElement('div');
+        causesContainer.className = 'causes-container';
+        clauseDiv.appendChild(causesContainer);
 
+        // 根據 JSON 檔案中的每個子句的 selections 添加原因和分數
+        if (clause.selections && clause.selections.length > 0) {
+            clause.selections.forEach(selections => {
+                if (selections.emotion) {
+                    emotionSelect.value = selections.emotion;
+                }
 
-            let deleteButton = document.createElement('button');
-            deleteButton.className = 'delete-cause';
-            let deleteicon = document.createElement('i');
-            deleteicon.className = 'fas fa-minus';
-            deleteButton.appendChild(deleteicon);
-            deleteButton.addEventListener('click', () => deleteCauseAndScore(causesContainer));
-            clauseDiv.appendChild(deleteButton);
+                if (selections.causes) {
+                    selections.causes.forEach(cause => {
+                        addCauseAndScore(causesContainer, index, cause.id, cause.score);
+                    });
+                }
+            });
+        }
 
-            docDiv.appendChild(clauseDiv);
-        });
+        // 添加和刪除按鈕
+        let addButton = document.createElement('button');
+        addButton.className = 'add-cause';
+        addButton.innerText = '+';
+        addButton.addEventListener('click', () => addCauseAndScore(causesContainer, index));
+        clauseDiv.appendChild(addButton);
 
-        contentDiv.appendChild(docDiv);
-    }
-    document.getElementById('page-number-input').value = pageIndex + 1;
+        let deleteButton = document.createElement('button');
+        deleteButton.className = 'delete-cause';
+        deleteButton.innerText = '-';
+        deleteButton.addEventListener('click', () => deleteCauseAndScore(causesContainer, index));
+        clauseDiv.appendChild(deleteButton);
+
+        docDiv.appendChild(clauseDiv);
+    });
+
+    contentDiv.appendChild(docDiv);
+    document.getElementById('current-page').textContent = current_page;
+    document.getElementById('total-pages').textContent = total_page;
 }
 
+//
 
-function createEmotionSelect() {
+
+
+// 創建情緒選擇器的函數，接受一個預設情緒值作為參數
+function createEmotionSelect(defaultEmotion) {
     let select = document.createElement('select');
     select.className = 'emotion-select';
 
-
+    // 添加預設選項
     let defaultOption = document.createElement('option');
     defaultOption.value = "";
-    defaultOption.text = "null";
+    defaultOption.text = "請選擇情緒";
     select.appendChild(defaultOption);
 
-    const emotions = ['happiness', 'sadness', 'disgust', 'surprise', 'fear', 'anger'];
 
-
+    // 為每種情緒添加選項
     emotions.forEach(emotion => {
         let option = document.createElement('option');
         option.value = emotion;
@@ -109,18 +168,18 @@ function createEmotionSelect() {
         select.appendChild(option);
     });
 
-    select.addEventListener('change', function () {
-        localStorage.setItem(select.id, select.value);
-    });
+    // 如果提供了預設情緒，則將其設為選中
+    if (defaultEmotion && defaultEmotion != "null") {
+        select.value = defaultEmotion;
+    }
 
     return select;
 }
 
-
-function addCauseAndScore(container) {
-
-    causenumber = container.querySelectorAll('.cause-select').length;
-    if (causenumber >= 4) {
+// 修改後的 addCauseAndScore 函數，以接受預選的原因 ID 和分數
+function addCauseAndScore(container, index, selectedCauseId, selectedScore) {
+    const causenumber = container.querySelectorAll('.cause-select').length;
+    if (causenumber >= 3) {
         return;
     }
 
@@ -128,39 +187,38 @@ function addCauseAndScore(container) {
         return clauseElem.innerText;
     });
 
-    let causeSelect = createCauseSelect(allClausesTexts);
+    let causeSelect = createCauseSelect(allClausesTexts, selectedCauseId);
     container.appendChild(causeSelect);
 
-    let scoreSelect = createScoreSelect();
+    let scoreSelect = createScoreSelect(selectedScore);
     container.appendChild(scoreSelect);
-
-
 }
 
 
-function deleteCauseAndScore(container) {
+// 刪除原因和分數選擇器的函數
+function deleteCauseAndScore(container, index) {
     if (container.lastChild) {
         container.removeChild(container.lastChild);
     }
     if (container.lastChild) {
         container.removeChild(container.lastChild);
     }
-
 }
 
 
 
-function createCauseSelect(allClausesTexts) {
+// 創建原因選擇器的函數，接受所有子句文本和一個預選的原因 ID
+function createCauseSelect(allClausesTexts, selectedCauseId) {
     let select = document.createElement('select');
     select.className = 'cause-select';
 
-
+    // 添加預設選項
     let nullOption = document.createElement('option');
     nullOption.value = '';
     nullOption.text = '選擇原因子句';
     select.appendChild(nullOption);
 
-
+    // 為每個子句添加選項
     allClausesTexts.forEach((clauseText, index) => {
         let option = document.createElement('option');
         option.value = (index + 1).toString();
@@ -168,13 +226,15 @@ function createCauseSelect(allClausesTexts) {
         select.appendChild(option);
     });
 
-    select.addEventListener('change', function () {
-        localStorage.setItem(select.id, select.value);
-    });
+    // 如果提供了預選的原因 ID，則將其設為選中
+    if (selectedCauseId) {
+        select.value = selectedCauseId.toString();
+    }
+
     return select;
 }
 
-function createScoreSelect(selectedScore, index) {
+function createScoreSelect(selectedScore) {
     let select = document.createElement('select');
     select.className = 'score-select';
 
@@ -184,18 +244,14 @@ function createScoreSelect(selectedScore, index) {
     emptyOption.text = '選擇相關程度';
     select.appendChild(emptyOption);
 
-    // 分數範圍1-3
+    // 添加分數選項
     for (let i = 1; i <= 3; i++) {
         let option = document.createElement('option');
         option.value = i.toString();
-        if (i === 1) {
-            option.text = '低度相關';
-        } else if (i === 2) {
-            option.text = '中度相關';
-        } else {
-            option.text = '高度相關';
+        option.text = i === 1 ? '較弱對應' : '較強對應';
+        if (selectedScore && parseInt(selectedScore) === i) {
+            option.selected = true;
         }
-        option.selected = i.toString() === selectedScore;
         select.appendChild(option);
     }
 
@@ -205,7 +261,7 @@ function createScoreSelect(selectedScore, index) {
 function onSignIn(googleUser) {
     // 獲取用戶的基本資訊
     var profile = googleUser.getBasicProfile();
-    console.log('ID: ' + profile.getId()); 
+    console.log('ID: ' + profile.getId());
     console.log('Full Name: ' + profile.getName());
     console.log('Given Name: ' + profile.getGivenName());
     console.log('Family Name: ' + profile.getFamilyName());
@@ -217,55 +273,83 @@ function onSignIn(googleUser) {
     console.log("ID Token: " + id_token);
 }
 
-document.getElementById('save-form').addEventListener('click', function () {
-    const username = user.sub;
+
+function checkEmotionSelectsBeforeSubmit() {
+    const emotionSelects = document.querySelectorAll('.emotion-select');
+    for (let select of emotionSelects) {
+        if (select.value === "" || select.value === "請選擇情緒") {
+            alert("請為所有子句選擇一個情緒。");
+            return false; // 阻止表單提交
+        }
+    }
+    return true; // 允許表單提交
+}
+
+document.getElementById('next').addEventListener('click', function (event) {
+    if (!checkEmotionSelectsBeforeSubmit()) {
+        event.preventDefault(); // 阻止表單提交
+        return;
+    }
+    const username = window.user.sub;
     const docId = document.querySelector('.doc-header').innerText.split(': ')[1] || 'unknown';
     const allClauses = document.querySelectorAll('.clause');
     const data = {
         doc_id: docId,
-        user: username,
-        clauses: []
+        uuid: username,
+        selections: []
     };
 
     allClauses.forEach((clauseElement, index) => {
         const clauseData = {
             clause_id: index + 1,
             emotion: getValue(clauseElement, '.emotion-select'),
-            causes: {},
-            scores: {}
+            causes: []
         };
 
         const causeSelects = clauseElement.querySelectorAll('.cause-select');
         const scoreSelects = clauseElement.querySelectorAll('.score-select');
 
         causeSelects.forEach((select, selectIndex) => {
-            clauseData.causes['cause' + (selectIndex + 1)] = select.value || null;
+            if (select.value) {
+                clauseData.causes.push({ "id": selectIndex + 1, "score": null });
+            }
         });
 
         scoreSelects.forEach((select, selectIndex) => {
-            clauseData.scores['score' + (selectIndex + 1)] = select.value || 0;
+            if (select.value) {
+                let cause = clauseData.causes.find(cause => cause.id === selectIndex + 1);
+                if (cause) {
+                    cause.score = select.value;
+                }
+            }
         });
 
-        data.clauses.push(clauseData);
+        data.selections.push(clauseData);
     });
 
-    fetch(window.url + '/submit', {
+    fetch('/API/nextPage', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(data)
     })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        }) // 將響應轉換為 JSON
         .then(data => {
             alert('表單已成功提交');
-            console.log('Success:', data);
+            displayPage(data.docs, data.current_page, data.total_page);
         })
         .catch((error) => {
             alert('表單上傳失敗');
             console.error('Error:', error);
         });
-});
+}
+);
 
 
 
@@ -274,23 +358,18 @@ function getValue(parentElement, selector) {
     return element && element.value ? element.value : null;
 }
 
-// function downloadObjectAsJson(exportObj, exportName) {
-//     var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
-//     var downloadAnchorNode = document.createElement('a');
-//     downloadAnchorNode.setAttribute("href", dataStr);
-//     downloadAnchorNode.setAttribute("download", exportName + ".json");
-//     document.body.appendChild(downloadAnchorNode); // required for firefox
-//     downloadAnchorNode.click();
-//     downloadAnchorNode.remove();
-// }
+
 
 document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('select').forEach(select => {
-        const savedValue = localStorage.getItem(select.id);
+        console.log(savedValue);
         if (savedValue) {
             select.value = savedValue;
         }
     });
 });
 
-window.onload = loadAndDisplayJSON;
+var container = document.getElementsByClassName('causes-container');
+
+
+window.onload = next;
