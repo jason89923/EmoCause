@@ -167,8 +167,8 @@ function createEmotionSelect(defaultEmotion) {
 
     // 添加預設選項
     let defaultOption = document.createElement('option');
-    defaultOption.value = "1";
-    defaultOption.text = "null";
+    defaultOption.value = "";
+    defaultOption.text = "請選擇情緒";
     select.appendChild(defaultOption);
 
 
