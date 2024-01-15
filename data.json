@@ -1,9 +1,17 @@
 {
   "doc_id": 1266,
   "uuid": "gugu",
-  "clauses": [
+  "selections": [
     {
       "clause_id": 1,
+      "emotion": "happiness",
+      "causes": [
+        { "id": 1, "score": 2 },
+        { "id": 2, "score": 3 }
+      ]
+    },
+    {
+      "clause_id": 2,
       "emotion": "happiness",
       "causes": [
         { "id": 1, "score": 2 },

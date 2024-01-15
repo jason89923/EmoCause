@@ -23,8 +23,7 @@ function next() {
         })
         .then(data => {
             // 處理 JSON 響應
-            console.log(data);
-            displayPage(data.docs, data.current_page, data.total_page);
+            displayPage(data.docs, data.current_page, data.total_page, data.answer);
         })
         .catch(error => {
             console.error('Error fetching data:', error);
@@ -35,11 +34,11 @@ function next() {
 function prev() {
     // 創建一個包含 UUID 的物件
     const payload = {
-        uuid: window.user
+        uuid: window.user.sub
     };
 
     // 使用 fetch 發送 POST 請求
-    fetch('/API/topic_info', {
+    fetch('/API/prevPage', {
         method: 'POST', // 指定請求方法為 POST
         headers: {
             'Content-Type': 'application/json' // 指定請求內容類型為 JSON
@@ -54,8 +53,7 @@ function prev() {
         })
         .then(data => {
             // 處理 JSON 響應
-            console.log(data);
-            displayPage(data, currentPage);
+            displayPage(data.docs, data.current_page, data.total_page, data.answer);
         })
         .catch(error => {
             console.error('Error fetching data:', error);
@@ -64,18 +62,10 @@ function prev() {
 }
 
 
-// 在頁面加載時設置事件監聽器
-document.addEventListener('DOMContentLoaded', function () {
-    // 當點擊上一頁按鈕時觸發 prev 函數
-    document.getElementById('prev').addEventListener('click', function () {
-        prev();
-    });
-
-});
 
 
 // 這個函數根據提供的數據和頁碼顯示頁面
-function displayPage(data, current_page, total_page) {
+function displayPage(data, current_page, total_page, answer) {
     let contentDiv = document.getElementById('content');
     contentDiv.innerHTML = '';
 
@@ -108,21 +98,6 @@ function displayPage(data, current_page, total_page) {
         causesContainer.className = 'causes-container';
         clauseDiv.appendChild(causesContainer);
 
-        // 根據 JSON 檔案中的每個子句的 selections 添加原因和分數
-        if (clause.selections && clause.selections.length > 0) {
-            clause.selections.forEach(selections => {
-                if (selections.emotion) {
-                    emotionSelect.value = selections.emotion;
-                }
-
-                if (selections.causes) {
-                    selections.causes.forEach(cause => {
-                        addCauseAndScore(causesContainer, index, cause.id, cause.score);
-                    });
-                }
-            });
-        }
-
         // 添加和刪除按鈕
         let addButton = document.createElement('button');
         addButton.className = 'add-cause';
@@ -140,11 +115,48 @@ function displayPage(data, current_page, total_page) {
     });
 
     contentDiv.appendChild(docDiv);
-    document.getElementById('current-page').textContent = current_page;
-    document.getElementById('total-pages').textContent = total_page;
+
+    processSelections(answer);
+    document.getElementById('current-page').textContent = '目前頁數 ' + current_page;
+    document.getElementById('total-pages').textContent = '總頁數 ' + total_page;
 }
 
-//
+
+
+function processSelections(answer) {
+    if (answer && Array.isArray(answer.selections)) {
+        answer.selections.forEach((selection) => {
+            // 查找所有子句元素
+            const allClauseDivs = document.querySelectorAll('.clause');
+            let clauseDiv = null;
+
+
+            allClauseDivs.forEach(div => {
+                const clauseTextDiv = div.querySelector('.clause-text');
+                if (clauseTextDiv && clauseTextDiv.innerText.startsWith(selection.clause_id + ". ")) {
+                    clauseDiv = div;
+                }
+            });
+
+            if (clauseDiv) {
+                // 找到情緒選擇器並設置值
+                let emotionSelect = clauseDiv.querySelector('.emotion-select');
+                if (emotionSelect) {
+                    emotionSelect.value = selection.emotion;
+                }
+
+                // 找到原因容器
+                let causesContainer = clauseDiv.querySelector('.causes-container');
+                if (causesContainer) {
+                    // 為每個原因添加原因和分數
+                    selection.causes.forEach(cause => {
+                        addCauseAndScore(causesContainer, 0, cause.id, cause.score);
+                    });
+                }
+            }
+        });
+    }
+}
 
 
 
@@ -155,8 +167,8 @@ function createEmotionSelect(defaultEmotion) {
 
     // 添加預設選項
     let defaultOption = document.createElement('option');
-    defaultOption.value = "";
-    defaultOption.text = "請選擇情緒";
+    defaultOption.value = "1";
+    defaultOption.text = "null";
     select.appendChild(defaultOption);
 
 
@@ -227,8 +239,9 @@ function createCauseSelect(allClausesTexts, selectedCauseId) {
     });
 
     // 如果提供了預選的原因 ID，則將其設為選中
-    if (selectedCauseId) {
-        select.value = selectedCauseId.toString();
+    if (selectedCauseId !== undefined && selectedCauseId !== null) {
+        selectedCauseId = selectedCauseId.toString();
+        select.value = selectedCauseId;
     }
 
     return select;
@@ -245,7 +258,7 @@ function createScoreSelect(selectedScore) {
     select.appendChild(emptyOption);
 
     // 添加分數選項
-    for (let i = 1; i <= 3; i++) {
+    for (let i = 1; i <= 2; i++) {
         let option = document.createElement('option');
         option.value = i.toString();
         option.text = i === 1 ? '較弱對應' : '較強對應';
@@ -285,6 +298,66 @@ function checkEmotionSelectsBeforeSubmit() {
     return true; // 允許表單提交
 }
 
+
+
+document.getElementById('prev').addEventListener('click', function (event) {
+    if (!checkEmotionSelectsBeforeSubmit()) {
+        event.preventDefault(); // 阻止表單提交
+        return;
+    }
+    const username = window.user.sub;
+    const docId = document.querySelector('.doc-header').innerText.split(': ')[1] || 'unknown';
+    const allClauses = document.querySelectorAll('.clause');
+    const data = {
+        doc_id: docId,
+        uuid: username,
+        selections: []
+    };
+
+    allClauses.forEach((clauseElement, index) => {
+        const clauseData = {
+            clause_id: index + 1,
+            emotion: getValue(clauseElement, '.emotion-select'),
+            causes: []
+        };
+
+        const causeSelects = clauseElement.querySelectorAll('.cause-select');
+        const scoreSelects = clauseElement.querySelectorAll('.score-select');
+
+        for (let i = 0; i < causeSelects.length; i++) {
+            if (causeSelects[i].value) {
+                let cause = { "id": causeSelects[i].value, "score": scoreSelects[i].value.toString() };
+                clauseData.causes.push(cause);
+            }
+        }
+
+        data.selections.push(clauseData);
+    });
+
+    fetch('/API/prevPage', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        }) // 將響應轉換為 JSON
+        .then(data => {
+            alert('表單已成功提交');
+            displayPage(data.docs, data.current_page, data.total_page, data.answer);
+        })
+        .catch((error) => {
+            alert('表單上傳失敗');
+            console.error('Error:', error);
+        });
+}
+);
+
 document.getElementById('next').addEventListener('click', function (event) {
     if (!checkEmotionSelectsBeforeSubmit()) {
         event.preventDefault(); // 阻止表單提交
@@ -309,20 +382,12 @@ document.getElementById('next').addEventListener('click', function (event) {
         const causeSelects = clauseElement.querySelectorAll('.cause-select');
         const scoreSelects = clauseElement.querySelectorAll('.score-select');
 
-        causeSelects.forEach((select, selectIndex) => {
-            if (select.value) {
-                clauseData.causes.push({ "id": selectIndex + 1, "score": null });
+        for (let i = 0; i < causeSelects.length; i++) {
+            if (causeSelects[i].value) {
+                let cause = { "id": causeSelects[i].value, "score": scoreSelects[i].value.toString() };
+                clauseData.causes.push(cause);
             }
-        });
-
-        scoreSelects.forEach((select, selectIndex) => {
-            if (select.value) {
-                let cause = clauseData.causes.find(cause => cause.id === selectIndex + 1);
-                if (cause) {
-                    cause.score = select.value;
-                }
-            }
-        });
+        }
 
         data.selections.push(clauseData);
     });
@@ -342,7 +407,7 @@ document.getElementById('next').addEventListener('click', function (event) {
         }) // 將響應轉換為 JSON
         .then(data => {
             alert('表單已成功提交');
-            displayPage(data.docs, data.current_page, data.total_page);
+            displayPage(data.docs, data.current_page, data.total_page, data.answer);
         })
         .catch((error) => {
             alert('表單上傳失敗');
@@ -351,6 +416,64 @@ document.getElementById('next').addEventListener('click', function (event) {
 }
 );
 
+document.getElementById('continue').addEventListener('click', function (event) {
+    if (!checkEmotionSelectsBeforeSubmit()) {
+        event.preventDefault(); // 阻止表單提交
+        return;
+    }
+    const username = window.user.sub;
+    const docId = document.querySelector('.doc-header').innerText.split(': ')[1] || 'unknown';
+    const allClauses = document.querySelectorAll('.clause');
+    const data = {
+        doc_id: docId,
+        uuid: username,
+        selections: [],
+        tail: true
+    };
+
+    allClauses.forEach((clauseElement, index) => {
+        const clauseData = {
+            clause_id: index + 1,
+            emotion: getValue(clauseElement, '.emotion-select'),
+            causes: []
+        };
+
+        const causeSelects = clauseElement.querySelectorAll('.cause-select');
+        const scoreSelects = clauseElement.querySelectorAll('.score-select');
+
+        for (let i = 0; i < causeSelects.length; i++) {
+            if (causeSelects[i].value) {
+                let cause = { "id": causeSelects[i].value, "score": scoreSelects[i].value.toString() };
+                clauseData.causes.push(cause);
+            }
+        }
+
+        data.selections.push(clauseData);
+    });
+
+    fetch('/API/nextPage', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        }) // 將響應轉換為 JSON
+        .then(data => {
+            alert('表單已成功提交');
+            displayPage(data.docs, data.current_page, data.total_page, data.answer);
+        })
+        .catch((error) => {
+            alert('表單上傳失敗');
+            console.error('Error:', error);
+        });
+}
+);
 
 
 function getValue(parentElement, selector) {

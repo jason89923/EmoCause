@@ -105,7 +105,7 @@ body {
   margin-bottom: 5px;
 }
 
-.emotion-select{
+.emotion-select {
   width: 100%; /* 修改為填滿容器 */
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -114,7 +114,7 @@ body {
   transition: border-color 0.3s, box-shadow 0.3s;
 }
 
-.cause-select{
+.cause-select {
   width: 100%; /* 修改為填滿容器 */
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -139,44 +139,49 @@ body {
   border-color: #2a7f62;
   box-shadow: 0 0 0 2px rgba(42, 127, 98, 0.2);
 }
-
 .pagination {
   display: grid;
-  width: 30vw;
-  grid-template-columns: auto auto auto auto; 
-  margin: 0 auto; /* 水平居中 */
+  grid-template-columns: 1fr 0.7fr 0.7fr 1fr 1fr; /* 使用 repeat 函數簡化定義 */
+  gap: 30px; /* 添加間隙 */
+  max-width: 1000px; /* 設定最大寬度 */
+  margin: 0 auto;
+  align-items: center;
+}
+
+.pagination span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin-top: 20px;
+  font-weight: 700;
+  font-size: 18px;
 }
 
 .page-button {
   cursor: pointer;
   padding: 10px 15px;
-  background-color: #2a7f62;
+  background-color: var(--primary-color, #2a7f62); /* 使用 CSS 變量 */
   color: white;
   border-radius: 5px;
   transition: background-color 0.3s;
+
+  /* 新增邊框 */
+  border: 2px solid #2a7f62; /* 或者您可以選擇您喜歡的顏色 */
+
+  /* 新增陰影 */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* X偏移, Y偏移, 模糊半徑, 顏色 */
 }
 
 .page-button:hover {
-  background-color: #238756;
+  background-color: var(--hover-color, #238756); /* 使用 CSS 變量 */
 }
 
-.current-page {
-  width: 50px;
-  text-align: center;
-  margin: 0 10px;
-}
-
-.save-button {
-  padding: 12px 25px;
-  background-color: #2a7f62;
-  color: rgb(255, 255, 255);
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition: box-shadow 0.3s;
-}
-
-.save-button:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+/* 媒體查詢：響應式設計 */
+@media (max-width: 768px) {
+  .pagination {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .add-cause {
@@ -197,8 +202,6 @@ body {
   font-size: 16px; /* 適合的大小 */
 }
 
-
-
 .delete-cause {
   color: rgb(162, 162, 162);
   border-color: #d1d1d1;
@@ -212,6 +215,23 @@ body {
   background-color: #808080;
 }
 
+.logon-info {
+  display: flex; /* 新增: 使用 flexbox 布局 */
+  align-items: center; /* 新增: 對齊項目到中心 */
+  justify-content: space-between; /* 新增: 元素之間留有空間 */
+}
+
+.user-container {
+  display: flex;
+  align-items: center;
+  padding: 5px 10px;
+  border: 3px solid rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  background-color: rgba(255, 255, 255, 0);
+  z-index: 2;
+  overflow-x: hidden;
+}
+
 .user_picture {
   width: 100px;
   height: 100px;
@@ -220,39 +240,26 @@ body {
   margin-right: 20px;
 }
 
-.user-container {
-  display: flex;
-  align-items: center;
-  position: absolute;
-  padding: 5px 10px;
-  border: 3px solid rgba(0, 0, 0, 0.5);
-  border-radius: 10px;
-  background-color: rgba(255, 255, 255, 0);
-  z-index: 2;
-  overflow-x: hidden;
-  top: 1vw;
-  left: 65vw;
-
-}
-
 .user-info {
-  display: flex;
-  flex-direction: column;
+  display: flex; /* 使用 flexbox */
+  flex-direction: column; /* 將子元素排列方向設為垂直 */
+  align-items: flex-start; /* 對齊子元素到開始邊（左側） */
   margin-left: 15px;
-  justify-content: center;
 }
 
 .user-username {
   font-size: 18px;
   font-weight: 500;
+
 }
 
 .user-score {
   font-size: 14px;
-  color: rgba( 0, 0, 0, 0.7 );
+  color: rgba(0, 0, 0, 0.7);
   font-weight: 300;
-  margin-top: -10px;
+  margin-top: -10px; 
 }
+
 
 .candidate-picture {
   width: 60px;
@@ -260,3 +267,7 @@ body {
   border-radius: 100%;
 }
 
+#continue {
+  background-color:rgb(255, 155, 23);
+  border: 2px solid #ffaf02; /* 或者您可以選擇您喜歡的顏色 */
+}
